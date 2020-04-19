@@ -4,9 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".CountryCardFragment"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <androidx.cardview.widget.CardView
+
+<androidx.cardview.widget.CardView
         android:id="@+id/summaryCard"
         android:layout_width="match_parent"
         android:layout_height="50dp"
