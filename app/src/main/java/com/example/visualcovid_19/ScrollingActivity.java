@@ -167,7 +167,6 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
         Point targetPoint = new Point(markerPoint.x, markerPoint.y - 1000);
         LatLng targetPosition = projection.fromScreenLocation(targetPoint);
         myMap.animateCamera(CameraUpdateFactory.newLatLng(targetPosition), 1000, null);
-
         myMap.animateCamera( CameraUpdateFactory.zoomTo( 10.0f ) );
         return false;
     }
@@ -219,8 +218,11 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
                 try {
                     JSONObject countryData = covidData.getJSONObject(i);
                     String countryName = countryData.getString("country");
-                    String formattedCasesCount = NumberFormat.getNumberInstance(Locale.US).format(countryData.getInt("cases"));
-                    CountryCardFragment cardFragment = CountryCardFragment.newInstance(countryName, formattedCasesCount);
+                    String formattedTotalCasesCount = NumberFormat.getNumberInstance(Locale.US).format(countryData.getInt("cases"));
+                    String formattedActiveCasesCount = NumberFormat.getNumberInstance(Locale.US).format(countryData.getInt("active"));
+                    String formattedRecoveredCasesCount = NumberFormat.getNumberInstance(Locale.US).format(countryData.getInt("recovered"));
+                    String formattedFatalCasesCount = NumberFormat.getNumberInstance(Locale.US).format(countryData.getInt("deaths"));
+                    CountryCardFragment cardFragment = CountryCardFragment.newInstance(countryName, formattedTotalCasesCount, formattedActiveCasesCount, formattedRecoveredCasesCount, formattedFatalCasesCount, getApplicationContext());
                     fragmentTransaction.add(R.id.cardsContainer, cardFragment, null);
 
                 } catch (JSONException e) {
@@ -232,7 +234,6 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
         progressSpinner.setVisibility(View.INVISIBLE);
 
     }
-
 
 
 

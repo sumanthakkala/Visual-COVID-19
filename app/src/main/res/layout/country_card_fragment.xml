@@ -9,11 +9,12 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 
-<androidx.cardview.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/summaryCard"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_margin="10dp"
+        android:clickable="true"
         app:cardCornerRadius="10dp">
 
         <RelativeLayout
@@ -36,7 +37,7 @@
                 app:srcCompat="@android:drawable/btn_star_big_off" />
 
             <TextView
-                android:id="@+id/totalCases"
+                android:id="@+id/totalCasesSummaryCard"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
@@ -66,6 +67,27 @@
                 android:gravity="center"
                 android:text="Country Name"
                 android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/invisibleActiveCasesSummaryCard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:visibility="invisible" />
+
+            <TextView
+                android:id="@+id/invisibleRecoveredCasesSummaryCard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:visibility="invisible" />
+
+            <TextView
+                android:id="@+id/invisibleFatalCasesSummaryCard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:visibility="invisible" />
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
 

@@ -27,9 +27,9 @@ public class CustomInfoWindowGoogleMap implements GoogleMap.InfoWindowAdapter {
                 .inflate(R.layout.marker_info_window, null);
 
         TextView total = view.findViewById(R.id.totalCasesMarker);
-        TextView active = view.findViewById(R.id.activeCases);
-        TextView recovered = view.findViewById(R.id.recoveredCases);
-        TextView fatal = view.findViewById(R.id.fatalCases);
+        TextView active = view.findViewById(R.id.activeCasesMarker);
+        TextView recovered = view.findViewById(R.id.recoveredCasesMarker);
+        TextView fatal = view.findViewById(R.id.fatalCasesMarker);
         TextView countryName = view.findViewById(R.id.countryName);
 
 
