@@ -22,6 +22,7 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.View;
 import android.view.Menu;
@@ -32,6 +33,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Console;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -43,9 +46,6 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
         setContentView(R.layout.activity_scrolling);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        // Get the SupportMapFragment and request notification
-        // when the map is ready to be used
         fetchData();
 
 
@@ -109,6 +109,7 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
                             SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                                     .findFragmentById(R.id.map);
                             mapFragment.getMapAsync(ScrollingActivity.this);
+                            addCountryCards();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -116,7 +117,6 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                //textView.setText("That didn't work!");
                 error.printStackTrace();
             }
         });
@@ -125,8 +125,25 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
         queue.add(jsonRequest);
     }
 
-    public void addCountryCard(JSONObject countryObject){
+    public void addCountryCards(){
         fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        if(findViewById(R.id.cardsContainer) != null) {
+
+            for (int i = 0; i < covidData.length(); i++){
+                try {
+                    JSONObject countryData = covidData.getJSONObject(i);
+                    String countryName = countryData.getString("country");
+                    String formattedCasesCount = NumberFormat.getNumberInstance(Locale.US).format(countryData.getInt("cases"));
+                    CountryCardFragment cardFragment = CountryCardFragment.newInstance(countryName, formattedCasesCount);
+                    fragmentTransaction.add(R.id.cardsContainer, cardFragment, null);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            fragmentTransaction.commit();
+        }
     }
 
 
