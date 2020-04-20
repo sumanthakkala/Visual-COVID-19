@@ -1,9 +1,9 @@
 package com.example.visualcovid_19;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -12,17 +12,16 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -32,27 +31,25 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.os.Handler;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Console;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     public static JSONArray covidData;
     public static FragmentManager fragmentManager;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private LinearLayout cardsContainerLayout;
     private ProgressBar progressSpinner;
+
+    private GoogleMap myMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,20 +124,52 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
     public void onMapReady(GoogleMap googleMap) {
         // Add a marker in Sydney, Australia,
         // and move the map's camera to the same location.
+        myMap = googleMap;
         googleMap.clear();
+        CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(this);
+        googleMap.setInfoWindowAdapter(customInfoWindow);
         for (int i = 0; i < covidData.length(); i++){
             try {
                 JSONObject countryData = covidData.getJSONObject(i);
+                int totalCases = countryData.getInt("cases");
+                int activeCases = countryData.getInt("active");
+                int recoveredCases = countryData.getInt("recovered");
+                int fatalCases = countryData.getInt("deaths");
+
+                MarkerInfoWindowData infoWindowData = new MarkerInfoWindowData();
+                infoWindowData.setTotalCases(NumberFormat.getNumberInstance(Locale.US).format(totalCases));
+                infoWindowData.setActiveCases(NumberFormat.getNumberInstance(Locale.US).format(activeCases));
+                infoWindowData.setRecoveredCases(NumberFormat.getNumberInstance(Locale.US).format(recoveredCases));
+                infoWindowData.setFatalCases(NumberFormat.getNumberInstance(Locale.US).format(fatalCases));
+                infoWindowData.setCountryName(countryData.getString("country"));
 
                 LatLng coordinates = new LatLng(countryData.getJSONObject("countryInfo").getInt("lat"),countryData.getJSONObject("countryInfo").getInt("long"));
-                googleMap.addMarker(new MarkerOptions().position(coordinates)
-                        .title(countryData.getString("country")));
+                MarkerOptions markerOptions = new MarkerOptions()
+                        .position(coordinates).title(countryData.getString("country"))
+                        .snippet("Total cases: " + totalCases + "\n Active cases: " + activeCases + "\n Recovered cases: " + recoveredCases + "\n Fatal cases: " + fatalCases);;
+                Marker marker = googleMap.addMarker(markerOptions);
+                marker.setTag(infoWindowData);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
         }
+        googleMap.setOnMarkerClickListener(this);
 //        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        //myMap.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
+        Projection projection = myMap.getProjection();
+        LatLng markerPosition = marker.getPosition();
+        Point markerPoint = projection.toScreenLocation(markerPosition);
+        Point targetPoint = new Point(markerPoint.x, markerPoint.y - 1000);
+        LatLng targetPosition = projection.fromScreenLocation(targetPoint);
+        myMap.animateCamera(CameraUpdateFactory.newLatLng(targetPosition), 1000, null);
+
+        myMap.animateCamera( CameraUpdateFactory.zoomTo( 10.0f ) );
+        return false;
     }
 
 
@@ -243,5 +272,6 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
     }
+
 
 }
