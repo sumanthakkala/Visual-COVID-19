@@ -1,6 +1,11 @@
 package com.example.visualcovid_19;
 
 import android.app.ActionBar;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import com.android.volley.Request;
@@ -30,6 +35,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,6 +56,44 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scrolling);
+
+        if (isOnline()) {
+            //do whatever you want to do
+            onSuccessNetworkConnection();
+        } else {
+            try {
+                AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+
+                alertDialog.setTitle("Error");
+                alertDialog.setMessage("No Internet Connection.");
+                alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+
+                    }
+                });
+
+                alertDialog.show();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
+
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager conMgr = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = conMgr.getActiveNetworkInfo();
+
+        if(netInfo == null || !netInfo.isConnected() || !netInfo.isAvailable()){
+            return false;
+        }
+        return true;
+    }
+
+    public void onSuccessNetworkConnection(){
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         cardsContainerLayout = (LinearLayout) findViewById(R.id.cardsContainer);
         mSwipeRefreshLayout = findViewById(R.id.swiperefresh_items);
@@ -73,11 +117,7 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
 
         setSupportActionBar(toolbar);
         fetchData();
-
-
     }
-
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         // Add a marker in Sydney, Australia,
