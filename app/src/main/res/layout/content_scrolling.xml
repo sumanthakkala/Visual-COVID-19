@@ -9,6 +9,7 @@
     tools:context=".ScrollingActivity"
     tools:showIn="@layout/activity_scrolling">
 
+
     <LinearLayout
         android:id="@+id/cardsContainer"
         android:layout_width="match_parent"
@@ -16,4 +17,5 @@
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
     </LinearLayout>
+
 </androidx.core.widget.NestedScrollView>

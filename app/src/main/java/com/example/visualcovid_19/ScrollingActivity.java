@@ -23,10 +23,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.os.Handler;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,42 +43,46 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
 
     public static JSONArray covidData;
     public static FragmentManager fragmentManager;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private LinearLayout cardsContainerLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scrolling);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        cardsContainerLayout = (LinearLayout) findViewById(R.id.cardsContainer);
+        mSwipeRefreshLayout = findViewById(R.id.swiperefresh_items);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Your code to make your refresh action
+                // CallYourRefreshingMethod();
+                refreshData();
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(mSwipeRefreshLayout.isRefreshing()) {
+                            mSwipeRefreshLayout.setRefreshing(false);
+                        }
+                    }
+                }, 1000);
+            }
+        });
+
         setSupportActionBar(toolbar);
         fetchData();
 
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_scrolling, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         // Add a marker in Sydney, Australia,
         // and move the map's camera to the same location.
+        googleMap.clear();
         for (int i = 0; i < covidData.length(); i++){
             try {
                 JSONObject countryData = covidData.getJSONObject(i);
@@ -92,6 +99,10 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
     }
 
 
+    public  void refreshData(){
+        cardsContainerLayout.removeAllViews();
+        fetchData();
+    }
 
     public void fetchData(){
         RequestQueue queue = Volley.newRequestQueue(this);
