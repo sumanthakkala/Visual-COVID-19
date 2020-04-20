@@ -7,7 +7,15 @@
     android:fitsSystemWindows="false"
     tools:context=".ScrollingActivity">
 
-        <com.google.android.material.appbar.AppBarLayout
+    <ProgressBar
+        android:id="@+id/progressSpinner"
+        style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="visible" />
+
+    <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/app_bar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/app_bar_height"

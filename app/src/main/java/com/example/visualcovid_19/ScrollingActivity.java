@@ -35,6 +35,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -51,6 +52,7 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
     public static FragmentManager fragmentManager;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private LinearLayout cardsContainerLayout;
+    private ProgressBar progressSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +97,8 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
 
     public void onSuccessNetworkConnection(){
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        progressSpinner = (ProgressBar)findViewById(R.id.progressSpinner);
+        progressSpinner.setVisibility(View.VISIBLE);
         cardsContainerLayout = (LinearLayout) findViewById(R.id.cardsContainer);
         mSwipeRefreshLayout = findViewById(R.id.swiperefresh_items);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -117,6 +121,7 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
 
         setSupportActionBar(toolbar);
         fetchData();
+
     }
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -195,6 +200,8 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
             }
             fragmentTransaction.commit();
         }
+        progressSpinner.setVisibility(View.INVISIBLE);
+
     }
 
 
