@@ -53,6 +53,7 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
     private static int SPLASH_TIME = 3000;
 
     public static JSONArray covidData;
+    public static JSONObject globalSummary;
     public static FragmentManager fragmentManager;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private LinearLayout cardsContainerLayout;
@@ -154,33 +155,52 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
         googleMap.clear();
         CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(this);
         googleMap.setInfoWindowAdapter(customInfoWindow);
-        for (int i = 0; i < covidData.length(); i++){
-            try {
-                JSONObject countryData = covidData.getJSONObject(i);
-                int totalCases = countryData.getInt("cases");
-                int activeCases = countryData.getInt("active");
-                int recoveredCases = countryData.getInt("recovered");
-                int fatalCases = countryData.getInt("deaths");
 
-                MarkerInfoWindowData infoWindowData = new MarkerInfoWindowData();
-                infoWindowData.setTotalCases(NumberFormat.getNumberInstance(Locale.US).format(totalCases));
-                infoWindowData.setActiveCases(NumberFormat.getNumberInstance(Locale.US).format(activeCases));
-                infoWindowData.setRecoveredCases(NumberFormat.getNumberInstance(Locale.US).format(recoveredCases));
-                infoWindowData.setFatalCases(NumberFormat.getNumberInstance(Locale.US).format(fatalCases));
-                infoWindowData.setCountryName(countryData.getString("country"));
 
-                LatLng coordinates = new LatLng(countryData.getJSONObject("countryInfo").getInt("lat"),countryData.getJSONObject("countryInfo").getInt("long"));
-                MarkerOptions markerOptions = new MarkerOptions()
-                        .position(coordinates).title(countryData.getString("country"))
-                        .snippet("Total cases: " + totalCases + "\n Active cases: " + activeCases + "\n Recovered cases: " + recoveredCases + "\n Fatal cases: " + fatalCases);;
-                Marker marker = googleMap.addMarker(markerOptions);
-                marker.setTag(infoWindowData);
-            } catch (JSONException e) {
-                e.printStackTrace();
+        fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            if (findViewById(R.id.cardsContainer) != null) {
+                fragmentTransaction.add(R.id.cardsContainer, getCountryCard(globalSummary), null);
+                for (int i = 0; i < covidData.length(); i++) {
+                    try {
+                        if(i%5 == 0 && i != 0){
+                        AdFragment adFragment = AdFragment.newInstance();
+                        fragmentTransaction.add(R.id.cardsContainer, adFragment, null);
+                    }
+
+                        JSONObject countryData = covidData.getJSONObject(i);
+                        int totalCases = countryData.getInt("cases");
+                        int activeCases = countryData.getInt("active");
+                        int recoveredCases = countryData.getInt("recovered");
+                        int fatalCases = countryData.getInt("deaths");
+
+
+                        MarkerInfoWindowData infoWindowData = new MarkerInfoWindowData();
+                        infoWindowData.setTotalCases(NumberFormat.getNumberInstance(Locale.US).format(totalCases));
+                        infoWindowData.setActiveCases(NumberFormat.getNumberInstance(Locale.US).format(activeCases));
+                        infoWindowData.setRecoveredCases(NumberFormat.getNumberInstance(Locale.US).format(recoveredCases));
+                        infoWindowData.setFatalCases(NumberFormat.getNumberInstance(Locale.US).format(fatalCases));
+                        infoWindowData.setCountryName(countryData.getString("country"));
+
+                        LatLng coordinates = new LatLng(countryData.getJSONObject("countryInfo").getInt("lat"), countryData.getJSONObject("countryInfo").getInt("long"));
+                        MarkerOptions markerOptions = new MarkerOptions()
+                                .position(coordinates).title(countryData.getString("country"))
+                                .snippet("Total cases: " + totalCases + "\n Active cases: " + activeCases + "\n Recovered cases: " + recoveredCases + "\n Fatal cases: " + fatalCases);
+                        ;
+                        Marker marker = googleMap.addMarker(markerOptions);
+                        marker.setTag(infoWindowData);
+
+
+                        fragmentTransaction.add(R.id.cardsContainer, getCountryCard(countryData), null);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                fragmentTransaction.commit();
             }
-
-        }
-        googleMap.setOnMarkerClickListener(this);
+            progressSpinner.setVisibility(View.INVISIBLE);
+            googleMap.setOnMarkerClickListener(this);
 //        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
@@ -203,7 +223,38 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
         fetchData();
     }
 
-    public void fetchData(){
+    public void getGlobalSummaryAndCountryData(){
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url ="https://corona.lmao.ninja/v2/all";
+
+        // Request a string response from the provided URL.
+        final StringRequest jsonRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            jsonResponse.put("country", "Global");
+                            globalSummary = jsonResponse;
+                            fetchCountryData();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(jsonRequest);
+    }
+
+
+    public void fetchCountryData(){
         RequestQueue queue = Volley.newRequestQueue(this);
         String url ="https://corona.lmao.ninja/v2/countries?sort=cases";
 
@@ -219,7 +270,7 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
                             SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                                     .findFragmentById(R.id.map);
                             mapFragment.getMapAsync(ScrollingActivity.this);
-                            addCountryCards();
+                            //addCountryCards();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -235,35 +286,58 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
         queue.add(jsonRequest);
     }
 
-    public void addCountryCards(){
-        fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+    public void fetchData(){
+        getGlobalSummaryAndCountryData();
+    }
+    public Fragment getCountryCard(JSONObject countryData){
+        CountryCardFragment cardFragment;
         if(findViewById(R.id.cardsContainer) != null) {
-
-            for (int i = 0; i < covidData.length(); i++){
                 try {
-                    if(i%5 == 0 && i != 0){
-                       AdFragment adFragment = AdFragment.newInstance();
-                        fragmentTransaction.add(R.id.cardsContainer, adFragment, null);
-                    }
-                    JSONObject countryData = covidData.getJSONObject(i);
                     String countryName = countryData.getString("country");
                     String formattedTotalCasesCount = NumberFormat.getNumberInstance(Locale.US).format(countryData.getInt("cases"));
                     String formattedActiveCasesCount = NumberFormat.getNumberInstance(Locale.US).format(countryData.getInt("active"));
                     String formattedRecoveredCasesCount = NumberFormat.getNumberInstance(Locale.US).format(countryData.getInt("recovered"));
                     String formattedFatalCasesCount = NumberFormat.getNumberInstance(Locale.US).format(countryData.getInt("deaths"));
-                    CountryCardFragment cardFragment = CountryCardFragment.newInstance(countryName, formattedTotalCasesCount, formattedActiveCasesCount, formattedRecoveredCasesCount, formattedFatalCasesCount, getApplicationContext());
-                    fragmentTransaction.add(R.id.cardsContainer, cardFragment, null);
-
+                    cardFragment = CountryCardFragment.newInstance(countryName, formattedTotalCasesCount, formattedActiveCasesCount, formattedRecoveredCasesCount, formattedFatalCasesCount, getApplicationContext());
+                    return cardFragment;
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            }
-            fragmentTransaction.commit();
         }
-        progressSpinner.setVisibility(View.INVISIBLE);
-
+        return null;
     }
+
+
+
+//    public void addCountryCards(){
+//        fragmentManager = getSupportFragmentManager();
+//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//        if(findViewById(R.id.cardsContainer) != null) {
+//
+//            for (int i = 0; i < covidData.length(); i++){
+//                try {
+//                    if(i%5 == 0 && i != 0){
+//                        AdFragment adFragment = AdFragment.newInstance();
+//                        fragmentTransaction.add(R.id.cardsContainer, adFragment, null);
+//                    }
+//                    JSONObject countryData = covidData.getJSONObject(i);
+//                    String countryName = countryData.getString("country");
+//                    String formattedTotalCasesCount = NumberFormat.getNumberInstance(Locale.US).format(countryData.getInt("cases"));
+//                    String formattedActiveCasesCount = NumberFormat.getNumberInstance(Locale.US).format(countryData.getInt("active"));
+//                    String formattedRecoveredCasesCount = NumberFormat.getNumberInstance(Locale.US).format(countryData.getInt("recovered"));
+//                    String formattedFatalCasesCount = NumberFormat.getNumberInstance(Locale.US).format(countryData.getInt("deaths"));
+//                    CountryCardFragment cardFragment = CountryCardFragment.newInstance(countryName, formattedTotalCasesCount, formattedActiveCasesCount, formattedRecoveredCasesCount, formattedFatalCasesCount, getApplicationContext());
+//                    fragmentTransaction.add(R.id.cardsContainer, cardFragment, null);
+//
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            fragmentTransaction.commit();
+//        }
+//        progressSpinner.setVisibility(View.INVISIBLE);
+//
+//    }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
