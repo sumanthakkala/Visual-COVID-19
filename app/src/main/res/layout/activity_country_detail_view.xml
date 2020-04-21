@@ -11,10 +11,23 @@
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc. -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/fullscreen_content"
+        android:id="@+id/countryDetailViewLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true">
+
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/countryDetailTopAdUnit"
+            android:layout_width="0dp"
+            android:layout_height="250dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            app:adSize="BANNER"
+            app:adUnitId="@string/admob_banner_test_unit_id"
+            app:layout_constraintBottom_toTopOf="@+id/textView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"></com.google.android.gms.ads.AdView>
 
         <LinearLayout
             android:id="@+id/fullscreen_content_controls"
@@ -41,7 +54,7 @@
             android:id="@+id/recoveredCasesdetailView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
             android:text="564"
@@ -56,8 +69,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
-            android:text="Active Cases"
+            android:layout_marginTop="10dp"
+            android:text="Fatal Cases"
             android:textColor="#CCCECE"
             android:textSize="20sp"
             app:layout_constraintEnd_toStartOf="@+id/fatalCasesDetailView"
@@ -69,7 +82,7 @@
             android:id="@+id/fatalCasesDetailView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
             android:text="3"
@@ -82,7 +95,7 @@
             android:id="@+id/activeCasesDetailView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
             android:text="877"
@@ -97,8 +110,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
-            android:text="Active Cases"
+            android:layout_marginTop="10dp"
+            android:text="Recovered Cases"
             android:textColor="#CCCECE"
             android:textSize="20sp"
             app:layout_constraintEnd_toStartOf="@+id/recoveredCasesdetailView"
@@ -112,7 +125,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
-            android:layout_marginTop="232dp"
+            android:layout_marginTop="272dp"
             android:text="Total Cases"
             android:textColor="#CCCECE"
             android:textSize="26sp"
@@ -125,9 +138,9 @@
             android:id="@+id/totalCasesDetailView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="232dp"
-            android:layout_marginEnd="12dp"
-            android:layout_marginRight="12dp"
+            android:layout_marginTop="272dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
             android:text="99999"
             android:textColor="#CCCECE"
             android:textSize="26sp"
@@ -140,7 +153,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="10dp"
             android:text="Active Cases"
             android:textColor="#CCCECE"
             android:textSize="20sp"
@@ -148,6 +161,19 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/countryDetailBottomAdUnit"
+            android:layout_width="0dp"
+            android:layout_height="250dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            app:adSize="BANNER"
+            app:adUnitId="@string/admob_banner_test_unit_id"
+            app:layout_constraintBottom_toTopOf="@+id/fullscreen_content_controls"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView10"></com.google.android.gms.ads.AdView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- This FrameLayout insets its children based on system windows using

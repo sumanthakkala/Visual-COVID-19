@@ -3,6 +3,7 @@ package com.example.visualcovid_19;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -14,6 +15,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -25,6 +31,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -42,12 +50,15 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+    private static int SPLASH_TIME = 3000;
 
     public static JSONArray covidData;
     public static FragmentManager fragmentManager;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private LinearLayout cardsContainerLayout;
     private ProgressBar progressSpinner;
+    private ConstraintLayout splashScreenOverlay;
+
 
     private GoogleMap myMap;
 
@@ -56,8 +67,22 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scrolling);
 
+        new Handler().postDelayed(new Runnable() {
+
+
+            @Override
+            public void run() {
+                splashScreenOverlay.setVisibility(View.INVISIBLE);
+            }
+        }, SPLASH_TIME);
+
         if (isOnline()) {
             //do whatever you want to do
+            MobileAds.initialize(this, new OnInitializationCompleteListener() {
+                @Override
+                public void onInitializationComplete(InitializationStatus initializationStatus) {
+                }
+            });
             onSuccessNetworkConnection();
         } else {
             try {
@@ -97,6 +122,7 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
         progressSpinner = (ProgressBar)findViewById(R.id.progressSpinner);
         progressSpinner.setVisibility(View.VISIBLE);
         cardsContainerLayout = (LinearLayout) findViewById(R.id.cardsContainer);
+        splashScreenOverlay = findViewById(R.id.splashScreenOverlay);
         mSwipeRefreshLayout = findViewById(R.id.swiperefresh_items);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -216,6 +242,10 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
 
             for (int i = 0; i < covidData.length(); i++){
                 try {
+                    if(i%5 == 0 && i != 0){
+                       AdFragment adFragment = AdFragment.newInstance();
+                        fragmentTransaction.add(R.id.cardsContainer, adFragment, null);
+                    }
                     JSONObject countryData = covidData.getJSONObject(i);
                     String countryName = countryData.getString("country");
                     String formattedTotalCasesCount = NumberFormat.getNumberInstance(Locale.US).format(countryData.getInt("cases"));
@@ -234,9 +264,6 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
         progressSpinner.setVisibility(View.INVISIBLE);
 
     }
-
-
-
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {

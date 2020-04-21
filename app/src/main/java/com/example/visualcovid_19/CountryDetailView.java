@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,17 +14,24 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
 public class CountryDetailView extends AppCompatActivity implements View.OnClickListener {
-
+    private ConstraintLayout countryDetailViewLayout;
     private TextView total;
     private TextView active;
     private TextView recovered;
     private TextView fatal;
     private Button backButton;
+
+    private AdView topAdView;
+    private AdView bottomAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,12 +40,20 @@ public class CountryDetailView extends AppCompatActivity implements View.OnClick
         setContentView(R.layout.activity_country_detail_view);
 
         Intent intent = getIntent();
+        countryDetailViewLayout = findViewById(R.id.countryDetailViewLayout);
         total = findViewById(R.id.totalCasesDetailView);
         active = findViewById(R.id.activeCasesDetailView);
         recovered = findViewById(R.id.recoveredCasesdetailView);
         fatal = findViewById(R.id.fatalCasesDetailView);
         backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(this);
+
+        topAdView = findViewById(R.id.countryDetailTopAdUnit);
+        bottomAdView = findViewById(R.id.countryDetailBottomAdUnit);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        topAdView.loadAd(adRequest);
+        bottomAdView.loadAd(adRequest);
+
         total.setText(intent.getStringExtra("TotalCases"));
         active.setText(intent.getStringExtra("ActiveCases"));
         recovered.setText(intent.getStringExtra("RecoveredCases"));
@@ -91,6 +107,7 @@ public class CountryDetailView extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onClick(View v) {
+        countryDetailViewLayout.removeAllViews();
         finish();
     }
 }
