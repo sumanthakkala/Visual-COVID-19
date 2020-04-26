@@ -197,7 +197,7 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
                 fragmentTransaction.commit();
             }
             progressSpinner.setVisibility(View.INVISIBLE);
-            googleMap.setOnMarkerClickListener(this);
+            myMap.setOnMarkerClickListener(this);
 //        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
@@ -209,8 +209,12 @@ public class ScrollingActivity extends AppCompatActivity implements OnMapReadyCa
         Point markerPoint = projection.toScreenLocation(markerPosition);
         Point targetPoint = new Point(markerPoint.x, markerPoint.y - 1000);
         LatLng targetPosition = projection.fromScreenLocation(targetPoint);
-        myMap.animateCamera(CameraUpdateFactory.newLatLng(targetPosition), 1000, null);
-        myMap.animateCamera( CameraUpdateFactory.zoomTo( 10.0f ) );
+
+//        myMap.animateCamera(CameraUpdateFactory.newLatLng(targetPosition), 1000, null);
+        myMap.animateCamera(CameraUpdateFactory.zoomTo(21.0f));
+//        myMap.animateCamera(CameraUpdateFactory.newLatLngZoom(targetPosition, 12.0f));
+
+
         return false;
     }
 
